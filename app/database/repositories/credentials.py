@@ -1,3 +1,4 @@
+from typing import Dict, Any
 from sqlalchemy import insert, select, update, and_
 
 from app.database.repositories.base import AbstractRepository
@@ -5,7 +6,7 @@ from app.database.models.credentials import Credentials
 
 
 class CredentialRepository(AbstractRepository):
-    async def add_one(self, data: dict) -> int:
+    async def add_one(self, data: Dict[str, Any]) -> int:
         stmt = insert(Credentials).values(**data).returning(Credentials.id)
         result = await self.session.execute(stmt)
         return result.scalar_one()

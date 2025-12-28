@@ -11,6 +11,8 @@ from pydantic import BaseModel, ConfigDict, Field
 # from app.schemas.credentials import CredentialSchema, CredentialsFormSchema, BitrixClientSchema
 from app.schemas.credentials import CredentialsInputSchema, CredentialSchema
 from app.core.dependencies import UOWDep
+from app.services.credentials import CredentialsService
+
 
 router = APIRouter(
     prefix="/bitrix",
@@ -43,8 +45,8 @@ async def install(
         domain=DOMAIN,
         **data.model_dump(),
     )
-    # credential_id = await CredentialsService().add_credential(uow, credential_data)
-    credential_id = 1
+    credential_id = await CredentialsService().add_credential(uow, credential_data)
+    # credential_id = 1
     return templates.TemplateResponse(
         request=request,
         name="install.html",
