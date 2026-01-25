@@ -1,5 +1,6 @@
 import pathlib
 import logging
+from logging.handlers import RotatingFileHandler
 from typing import Annotated
 from fastapi import APIRouter, Request, Query, Form
 from fastapi.responses import HTMLResponse,  JSONResponse
@@ -17,18 +18,26 @@ router = APIRouter(
 
 
 log_path = pathlib.Path(__file__).parent.parent / "logs"
-log_file = log_path / "bot.log"
 log_path.mkdir(parents=True, exist_ok=True)
+log_file = log_path / "bot.log"
 
 print(f"Log directory: {log_path}", flush=True)
-print(f"Log file path: {log_file}", flush=True)
 print(f"Log file exists before: {log_file.exists()}", flush=True)
 
-logging.basicConfig(
-    level=logging.INFO,
-    filename= str(log_file),
-    format="%(asctime)s %(levelname)s %(message)s"
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+file_handler = RotatingFileHandler(
+    filename="logs/bot.log",
+    maxBytes=10*1024*1024,  # 10 MB
+    backupCount=5,
+    encoding='utf-8'
 )
+
+formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
+file_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
 
 print(f"Log file exists after: {log_file.exists()}", flush=True)
 
@@ -38,13 +47,13 @@ async def event_bot(request: Request) -> dict:
     print('event_bot')
     query_params = dict(request.query_params)
     print('query_params: ', query_params)
-    logging.info(f'Query Params: {query_params}')
+    logger.info(f'Query Params: {query_params}')
     try:
         body = await request.json()
     except Exception:
         body = await request.body()
 
-    logging.info(f'Body: {body}')
+    logger.info(f'Body: {body}')
 
     return {}
 
