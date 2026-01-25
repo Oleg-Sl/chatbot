@@ -37,7 +37,7 @@ logger.addHandler(file_handler)
 
 
 @router.post("/event")
-async def event_bot(CLIENT_ID: str, data: Dict[str, Any] = Body(...)) -> dict:
+async def event_bot(CLIENT_ID: str, data: Dict[str, Any] = Form(...)) -> dict:
     # query_params = dict(request.query_params)
     # logger.info(f'Query Params: {query_params}')
     # client_id = query_params.get('CLIENT_ID')
