@@ -37,26 +37,35 @@ logger.addHandler(file_handler)
 
 
 @router.post("/event")
-async def event_bot(
-    CLIENT_ID: str,
-    data: Dict[str, Any] = Body(...),
-    content_type: str = Header(None)
-    ) -> dict:
-    # query_params = dict(request.query_params)
-    # logger.info(f'Query Params: {query_params}')
-    # client_id = query_params.get('CLIENT_ID')
-    # logger.info(f'Client ID: {client_id}')
-    # try:
-    #     body = await request.json()
-    # except Exception:
-    #     body = await request.body()
+async def event_bot(request: Request, CLIENT_ID: str) -> dict:
     logger.info(f'Client ID: {CLIENT_ID}')
+    
+    content_type = request.headers.get('content-type', '')
     logger.info(f'content_type: {content_type}')
-    logger.info(f'Body: {data}')
-    logger.info(f'Type of body: {type(data)}')
-    # logger.info(f'event: {data.get('event')}')
 
     return {}
+
+# @router.post("/event")
+# async def event_bot(
+#     CLIENT_ID: str,
+#     data: Dict[str, Any] = Body(...),
+#     # content_type: str = Header(None)
+#     ) -> dict:
+#     # query_params = dict(request.query_params)
+#     # logger.info(f'Query Params: {query_params}')
+#     # client_id = query_params.get('CLIENT_ID')
+#     # logger.info(f'Client ID: {client_id}')
+#     # try:
+#     #     body = await request.json()
+#     # except Exception:
+#     #     body = await request.body()
+#     logger.info(f'Client ID: {CLIENT_ID}')
+#     logger.info(f'content_type: {content_type}')
+#     logger.info(f'Body: {data}')
+#     logger.info(f'Type of body: {type(data)}')
+#     # logger.info(f'event: {data.get('event')}')
+
+#     return {}
 
 # @router.post("/create")
 # async def create_bot(request: Request) -> dict:
