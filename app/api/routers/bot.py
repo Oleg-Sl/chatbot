@@ -2,7 +2,7 @@ import pathlib
 import logging
 from logging.handlers import RotatingFileHandler
 from typing import Annotated
-from fastapi import APIRouter, Request, Query, Form
+from fastapi import APIRouter, Request, Query, Form, Body
 from fastapi.responses import HTMLResponse,  JSONResponse
 from fastapi.templating import Jinja2Templates
 
@@ -19,10 +19,6 @@ router = APIRouter(
 
 log_path = pathlib.Path(__file__).parent.parent / "logs"
 log_path.mkdir(parents=True, exist_ok=True)
-log_file = log_path / "bot.log"
-
-print(f"Log directory: {log_path}", flush=True)
-print(f"Log file exists before: {log_file.exists()}", flush=True)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -39,21 +35,19 @@ file_handler.setFormatter(formatter)
 
 logger.addHandler(file_handler)
 
-print(f"Log file exists after: {log_file.exists()}", flush=True)
-
 
 @router.post("/event")
-async def event_bot(request: Request) -> dict:
-    print('event_bot')
-    query_params = dict(request.query_params)
-    print('query_params: ', query_params)
-    logger.info(f'Query Params: {query_params}')
-    try:
-        body = await request.json()
-    except Exception:
-        body = await request.body()
-
-    logger.info(f'Body: {body}')
+async def event_bot(CLIENT_ID: str, data = Body()) -> dict:
+    # query_params = dict(request.query_params)
+    # logger.info(f'Query Params: {query_params}')
+    # client_id = query_params.get('CLIENT_ID')
+    # logger.info(f'Client ID: {client_id}')
+    # try:
+    #     body = await request.json()
+    # except Exception:
+    #     body = await request.body()
+    logger.info(f'Client ID: {CLIENT_ID}')
+    logger.info(f'Body: {data}')
 
     return {}
 
