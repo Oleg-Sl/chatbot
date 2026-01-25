@@ -37,11 +37,20 @@ logger.addHandler(file_handler)
 
 
 @router.post("/event")
-async def event_bot(request: Request, CLIENT_ID: str) -> dict:
+async def event_bot(
+    CLIENT_ID: str,
+    request: Request
+    ) -> dict:
+
     logger.info(f'Client ID: {CLIENT_ID}')
     
-    content_type = request.headers.get('content-type', '')
-    logger.info(f'content_type: {content_type}')
+    form_data = await request.form()
+    data = dict(form_data)
+    
+    logger.info(f'Form data: {data}')
+    
+    # content_type = request.headers.get('content-type', '')
+    # logger.info(f'content_type: {content_type}')
 
     return {}
 
