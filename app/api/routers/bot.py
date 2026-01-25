@@ -37,22 +37,46 @@ logger.addHandler(file_handler)
 
 
 @router.post("/event")
-async def event_bot(
-    CLIENT_ID: str,
-    request: Request
-    ) -> dict:
+async def event_bot(request: Request):
+    headers = dict(request.headers)
+    logger.info(f"Headers: {headers}")
 
-    logger.info(f'Client ID: {CLIENT_ID}')
+    content_type = request.headers.get('content-type', '')
+    logger.info(f"Content-Type: {content_type}")
     
-    form_data = await request.form()
-    data = dict(form_data)
+    # try:
+    #     body = await request.json()
+    # except Exception:
+    #     body = await request.body()
+    # logger.info(f'Body: {body}')
+
+    form = await request.form()
+    data = dict(form)
+    logger.info(f'Data: {data}')
+
+    event = data.get('event')
+    logger.info(f'Event: {event}')
+
+    # if event == 'ONIMCOMMANDADD':
+    #     pass
+
+# @router.post("/event")
+# async def event_bot(
+#     CLIENT_ID: str,
+#     request: Request
+#     ) -> dict:
+    # logger.info
+    # logger.info(f'Client ID: {CLIENT_ID}')
     
-    logger.info(f'Form data: {data}')
+    # form_data = await request.form()
+    # data = dict(form_data)
+    
+    # logger.info(f'Form data: {data}')
     
     # content_type = request.headers.get('content-type', '')
     # logger.info(f'content_type: {content_type}')
 
-    return {}
+    # return {}
 
 # @router.post("/event")
 # async def event_bot(
