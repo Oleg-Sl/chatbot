@@ -21,7 +21,7 @@ log_path.mkdir(parents=True, exist_ok=True)
 # pathlib.Path("logs").mkdir(parents=True, exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
-    filename= str(log_path / "/bot.log"),
+    filename= str(log_path / "bot.log"),
     format="%(asctime)s %(levelname)s %(message)s"
 )
 
