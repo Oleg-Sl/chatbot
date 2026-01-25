@@ -48,6 +48,7 @@ async def event_bot(CLIENT_ID: str, data = Body()) -> dict:
     #     body = await request.body()
     logger.info(f'Client ID: {CLIENT_ID}')
     logger.info(f'Body: {data}')
+    logger.info(f'event: {data.get('event')}')
 
     return {}
 
