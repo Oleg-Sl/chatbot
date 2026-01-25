@@ -2,7 +2,7 @@ import pathlib
 import logging
 from logging.handlers import RotatingFileHandler
 from typing import Annotated, Dict, Any
-from fastapi import APIRouter, Request, Query, Form, Body
+from fastapi import APIRouter, Request, Query, Form, Body, Header
 from fastapi.responses import HTMLResponse,  JSONResponse
 from fastapi.templating import Jinja2Templates
 
@@ -37,7 +37,11 @@ logger.addHandler(file_handler)
 
 
 @router.post("/event")
-async def event_bot(CLIENT_ID: str, data: Dict[str, Any] = Form(...)) -> dict:
+async def event_bot(
+    CLIENT_ID: str,
+    data: Dict[str, Any] = Form(...),
+    content_type: str = Header(None)
+    ) -> dict:
     # query_params = dict(request.query_params)
     # logger.info(f'Query Params: {query_params}')
     # client_id = query_params.get('CLIENT_ID')
@@ -46,6 +50,7 @@ async def event_bot(CLIENT_ID: str, data: Dict[str, Any] = Form(...)) -> dict:
     #     body = await request.json()
     # except Exception:
     #     body = await request.body()
+    logger.info(f'content_type: {content_type}')
     logger.info(f'Client ID: {CLIENT_ID}')
     logger.info(f'Body: {data}')
     logger.info(f'Type of body: {type(data)}')
