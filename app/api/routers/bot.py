@@ -17,18 +17,27 @@ router = APIRouter(
 
 
 log_path = pathlib.Path(__file__).parent.parent / "logs"
+log_file = log_path / "bot.log"
 log_path.mkdir(parents=True, exist_ok=True)
-# pathlib.Path("logs").mkdir(parents=True, exist_ok=True)
+
+print(f"Log directory: {log_path}", flush=True)
+print(f"Log file path: {log_file}", flush=True)
+print(f"Log file exists before: {log_file.exists()}", flush=True)
+
 logging.basicConfig(
     level=logging.INFO,
-    filename= str(log_path / "bot.log"),
+    filename= str(log_file),
     format="%(asctime)s %(levelname)s %(message)s"
 )
+
+print(f"Log file exists after: {log_file.exists()}", flush=True)
 
 
 @router.post("/event")
 async def event_bot(request: Request) -> dict:
+    print('event_bot')
     query_params = dict(request.query_params)
+    print('query_params: ', query_params)
     logging.info(f'Query Params: {query_params}')
     try:
         body = await request.json()
