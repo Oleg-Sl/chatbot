@@ -39,7 +39,7 @@ logger.addHandler(file_handler)
 @router.post("/event")
 async def event_bot(
     CLIENT_ID: str,
-    data: Dict[str, Any] = Form(...),
+    data: Dict[str, Any] = Body(...),
     content_type: str = Header(None)
     ) -> dict:
     # query_params = dict(request.query_params)
@@ -50,11 +50,11 @@ async def event_bot(
     #     body = await request.json()
     # except Exception:
     #     body = await request.body()
-    logger.info(f'content_type: {content_type}')
     logger.info(f'Client ID: {CLIENT_ID}')
+    logger.info(f'content_type: {content_type}')
     logger.info(f'Body: {data}')
     logger.info(f'Type of body: {type(data)}')
-    logger.info(f'event: {data.get('event')}')
+    # logger.info(f'event: {data.get('event')}')
 
     return {}
 
