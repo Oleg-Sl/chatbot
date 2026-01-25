@@ -15,9 +15,15 @@ router = APIRouter(
     tags=["Bot"],
 )
 
-pathlib.Path("logs").mkdir(parents=True, exist_ok=True)
-logging.basicConfig(level=logging.INFO, filename="logs/bot.log",
-                    format="%(asctime)s %(levelname)s %(message)s")
+
+log_path = pathlib.Path(__file__).parent.parent / "logs"
+log_path.mkdir(parents=True, exist_ok=True)
+# pathlib.Path("logs").mkdir(parents=True, exist_ok=True)
+logging.basicConfig(
+    level=logging.INFO,
+    filename= str(log_path / "/bot.log"),
+    format="%(asctime)s %(levelname)s %(message)s"
+)
 
 
 @router.post("/event")
