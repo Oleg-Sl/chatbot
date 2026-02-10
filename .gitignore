@@ -45,3 +45,6 @@ alembic.ini
 migration/
 logs/*
 logsые
+fakeApiClient.ts
+dist
+dist/*

@@ -6,7 +6,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from app.schemas.credentials import CredentialsInputSchema, CredentialSchema
-from app.core.dependencies import UOWDep
+from app.api.dependencies import UOWDep
 from app.services.credentials import CredentialsService
 
 
@@ -31,14 +31,22 @@ async def index(request: Request) -> HTMLResponse:
 async def install(
     request: Request,
     DOMAIN: Annotated[str, Query()],
+    APP_SID: Annotated[str, Query()],
     data: Annotated[CredentialsInputSchema, Form()],
     uow: UOWDep
 ) -> HTMLResponse:
+    logging.info(data)
+    logging.info(dict(request.query_params))
     credential_data = CredentialSchema(
         domain=DOMAIN,
+        application_token=APP_SID,
         **data.model_dump(),
     )
-    credential_id = await CredentialsService().add_credential(uow, credential_data)
+    logging.info('credential_data')
+    logging.info(credential_data.model_dump())
+    credential_id = await CredentialsService().create_or_update_credential(uow, credential_data)
+    logging.info('credential_id = ')
+    logging.info(credential_id)
     return templates.TemplateResponse(
         request=request,
         name="install.html",

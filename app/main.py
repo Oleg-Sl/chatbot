@@ -36,14 +36,7 @@ async def test():
     return {"test": 111, 'project_name': settings.project_name}
 
 
-# if __name__ == "__main__":
-#     uvicorn.run("main:app", host="0.0.0.0", port=8000, log_level="debug", reload=True)
-
-
-# python app.py
-# backend\venv\Scripts\activate.bat
-# uvicorn app.app:app --host 0.0.0.0 --port 8000 --reload --log-level debug
-# uvicorn app.app:app --host 0.0.0.0 --port 8888 --reload --log-level debug
+# uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
 
 # alembic init migrations
 # alembic revision --message="Initial" --autogenerate

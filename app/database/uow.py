@@ -2,11 +2,12 @@ from typing import Optional, Type
 from abc import ABC, abstractmethod
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database.repositories.credentials import CredentialRepository
+from app.repositories.credentials import CredentialRepository
 
 
 class IUnitOfWork(ABC):
-    credentials: Optional[CredentialRepository]
+    # credentials: Optional[CredentialRepository]
+    credentials: CredentialRepository
 
     @abstractmethod
     def __init__(self):
@@ -38,7 +39,8 @@ class UnitOfWork(IUnitOfWork):
         self.session = self.session_factory()
         if self.session is None:
             raise RuntimeError("Session factory returned None")
-        self.credentials = CredentialRepository(self.session) if self.session else None
+        # self.credentials = CredentialRepository(self.session) if self.session else None
+        self.credentials = CredentialRepository(self.session)
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:

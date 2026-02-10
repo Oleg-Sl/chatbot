@@ -1,8 +1,8 @@
-from typing import Dict, Any
+from typing import List, Dict, Any, Sequence, Optional
 from sqlalchemy import insert, select, update, and_
 
-from app.database.repositories.base import AbstractRepository
-from app.database.models.credentials import Credentials
+from app.repositories.base import AbstractRepository
+from app.models.database.credentials import Credentials
 
 
 class CredentialRepository(AbstractRepository):
@@ -16,17 +16,17 @@ class CredentialRepository(AbstractRepository):
         res = await self.session.execute(stmt)
         return res.scalar_one()
     
-    async def get(self, credential_id):
+    async def get(self, credential_id) -> Optional[Credentials]:
         stmt = select(Credentials).where(Credentials.id == credential_id)
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
     
-    async def filter(self, *args):
+    async def filter(self, *args) -> Optional[Credentials]:
         stmt = select(Credentials).where(and_(*args))
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def find_all(self):
+    async def find_all(self) -> Sequence[Credentials]:
         stmt = select(Credentials)
         result = await self.session.execute(stmt)
         return result.scalars().all()

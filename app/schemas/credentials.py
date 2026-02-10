@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -6,6 +7,7 @@ class CredentialsInputSchema(BaseModel):
 
     auth_token: str = Field(..., validation_alias='AUTH_ID')
     refresh_token: str = Field(..., validation_alias='REFRESH_ID')
+    # application_token: Optional[str] = Field(..., validation_alias="APP_SID")
 
 
 # class BitrixClientSchema(BaseModel):
@@ -21,3 +23,5 @@ class CredentialSchema(BaseModel):
     domain: str = Field(...)
     auth_token: str = Field(...)
     refresh_token: str = Field(...)
+    application_token: Optional[str] = Field(...)
+

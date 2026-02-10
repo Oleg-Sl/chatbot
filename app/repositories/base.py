@@ -11,6 +11,6 @@ class AbstractRepository(ABC):
     async def add_one(self, data: Dict[str, Any]) -> int:
         ...
 
-    @abstractmethod
-    async def find_all(self):
-        ...
+    # @abstractmethod
+    # async def find_all(self):
+    #     ...
