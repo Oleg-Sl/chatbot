@@ -35,18 +35,12 @@ async def install(
     data: Annotated[CredentialsInputSchema, Form()],
     uow: UOWDep
 ) -> HTMLResponse:
-    logging.info(data)
-    logging.info(dict(request.query_params))
     credential_data = CredentialSchema(
         domain=DOMAIN,
         application_token=APP_SID,
         **data.model_dump(),
     )
-    logging.info('credential_data')
-    logging.info(credential_data.model_dump())
     credential_id = await CredentialsService().create_or_update_credential(uow, credential_data)
-    logging.info('credential_id = ')
-    logging.info(credential_id)
     return templates.TemplateResponse(
         request=request,
         name="install.html",
