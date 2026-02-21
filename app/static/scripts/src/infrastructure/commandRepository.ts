@@ -1,4 +1,4 @@
-import { type IApiClient } from '../infrastructure/iApiClient.js';
+import { type IApiClient } from '../clients/iApiClient.js';
 import { type ICommandRepository } from '../infrastructure/iCommandRepository.js';
 import { type ICommandCreation, type ICommandUpdate } from '../domain/command.js';
 

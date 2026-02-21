@@ -9,18 +9,36 @@
         <script src="//api.bitrix24.com/api/v1/"></script>
     </head>
     <body>
-        <h1>Настройка приложения чат бота открытых линий!</h1>
-
-        <div id="botListContainerId">
-            <h2>Список зарегистрированных чат-ботов</h2>
-            <div id="botListId"></div>
+        <div class="d-flex justify-content-center" id="setupScreen">
+            <div class="d-flex justify-content-center align-items-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Загрузка...</span>
+                </div>
+            </div>
+            <div>
+                <h1 class="m-0">Установка приложения</h1>
+            </div>
         </div>
 
-        <button type="button" class="btn btn-primary" id="openBotCreationWindow">Создать чат-бот</button>
-        <button type="button" class="btn btn-primary" id="openCommandCreationWindow">Создать команду</button>
-        <button type="button" class="btn btn-primary" id="openCommandUpdateWindow">Изменить команду</button>
+        <div id="appScreen">
+            <h1>Настройка приложения чат бота открытых линий!</h1>
 
+            <div>
+                <h3>Данные установленного чат-бота</h3>
+                <div id="botDescriptionContainer"></div>
+            </div>
+
+            <div>
+                <h3>Список команд чат-бота</h3>
+                <div id="commandListContainer"></div>
+            </div>
+
+            <div>
+                <button type="button" class="btn btn-primary d-none" id="installBot">Установить</button>
+            </div>
+        </div>
+        
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-        <script type="module" src="{{ url_for('static', path='/scripts/dist/main.js') }}"></script>
+        <script type="module" src="{{ url_for('static', path='/scripts/dist/index.js') }}"></script>
     </body>
 </html>

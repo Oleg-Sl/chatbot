@@ -1,5 +1,5 @@
 type IBotData = {
-    ID: string,
+    ID: number,
     CODE: string,
     NAME: string,
     OPENLINE: string
@@ -30,7 +30,7 @@ type IBotUpdate = Pick<
 
 class Bot {
     constructor(
-        public ID: string,
+        public ID: number,
         public CODE: string,
         public NAME: string,
         public OPENLINE: string

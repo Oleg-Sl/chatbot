@@ -1,10 +1,25 @@
-import { type IApiClient } from '../infrastructure/iApiClient.js';
-import { type IBotRepository } from '../infrastructure/iBorRepository.js';
+import { type IApiClient } from '../clients/iApiClient.js';
+import { type IBotRepository } from './iBotRepository.js';
 import { type IBotData, Bot, type IBotCreation, type IBotUpdate } from '../domain/bot.js';
 
 
 export class BotRepository implements IBotRepository {
     constructor(private apiClient: IApiClient) {}
+
+    async getBot(filterData: Partial<IBotData>): Promise<Bot | undefined> {
+        try {
+            const bots = await this.getBots();
+            const bot = bots.find((item) => {
+                return Object.keys(filterData).every((key) => {
+                    return item[key as keyof Bot] === filterData[key as keyof IBotData];
+                });
+            });
+            return bot;
+        } catch (err) {
+            console.log(`Failed to fetch bot: ${err}`);
+            throw new Error(`Failed to fetch bot: ${err instanceof Error ? err.message : 'Unknown error'}`)
+        }
+    }
 
     async getBots(): Promise<Bot[]> {
         try {

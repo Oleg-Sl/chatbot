@@ -1,125 +1,111 @@
-import { BotListView } from './botListView.js';
-import { CreateBotModalView } from './createBotModalView.js';
-import { CreateCommandModalView } from './createCommandModalView.js';
-import { EditBotModalView } from './editBotModalView.js';
-import { EditCommandModalView } from './editCommandModalView.js';
+import { Bot } from '../domain/bot.js';
 
-import { GetBotsUseCase } from '../application/getBotsUseCase.js';
-import { CreateBotUseCase } from '../application/createBotUseCase.js';
-import { UpdateBotUseCase } from '../application/updateBotUseCase.js';
-import { DeleteBotUseCase } from '../application/deleteBotUseCase.js';
-import { CreateCommandUseCase } from '../application/createCommandUseCase.js';
-import { UpdateCommandUseCase } from '../application/updateCommandUseCase.js';
-import { DeleteCommandUseCase } from '../application/deleteCommandUseCase.js';
+import { BotView } from './views/botView.js';
+import { CommandView } from './views/commandView.js';
+import { ScreenView } from './views/screen.js';
+
+
+import { GetBotUseCase } from '../application/bot/getBotUseCase.js';
+import { CreateBotUseCase } from '../application/bot/createBotUseCase.js';
+import { UpdateBotUseCase } from '../application/bot/updateBotUseCase.js';
+import { DeleteBotUseCase } from '../application/bot/deleteBotUseCase.js';
+import { GetCommandsUseCase } from '../application/command/getCommandsUseCase.js';
+import { CreateCommandUseCase } from '../application/command/createCommandUseCase.js';
+import { UpdateCommandUseCase } from '../application/command/updateCommandUseCase.js';
+import { DeleteCommandUseCase } from '../application/command/deleteCommandUseCase.js';
 
 
 export class ManagerPresenter {
-    private botListView: BotListView;
-    private createBotModalView: CreateBotModalView;
-    private createCommandModalView: CreateCommandModalView;
-    private editBotModalView: EditBotModalView;
-    private editCommandModalView: EditCommandModalView;
+    public botId: number | undefined;
+ 
+    private botView: BotView;
+    private commandView: CommandView;
+    private screenView: ScreenView;
 
-    private getBotsUseCase: GetBotsUseCase;
+    private getBotUseCase: GetBotUseCase;
     private createBotUseCase: CreateBotUseCase;
     private updateBotUseCase: UpdateBotUseCase;
     private deleteBotUseCase: DeleteBotUseCase;
+    private getCommandsUseCase: GetCommandsUseCase;
     private createCommandUseCase: CreateCommandUseCase;
     private updateCommandUseCase: UpdateCommandUseCase;
     private deleteCommandUseCase: DeleteCommandUseCase;
 
     constructor(
-        getBotsUseCase: GetBotsUseCase,
+        getBotUseCase: GetBotUseCase,
         createBotUseCase: CreateBotUseCase,
         updateBotUseCase: UpdateBotUseCase,
         deleteBotUseCase: DeleteBotUseCase,
+        getCommandsUseCase: GetCommandsUseCase,
         createCommandUseCase: CreateCommandUseCase,
         updateCommandUseCase: UpdateCommandUseCase,
         deleteCommandUseCase: DeleteCommandUseCase
     ) {
-        this.getBotsUseCase = getBotsUseCase;
+        this.getBotUseCase = getBotUseCase;
         this.createBotUseCase = createBotUseCase;
         this.updateBotUseCase = updateBotUseCase;
         this.deleteBotUseCase = deleteBotUseCase;
+        this.getCommandsUseCase = getCommandsUseCase;
         this.createCommandUseCase = createCommandUseCase;
         this.updateCommandUseCase = updateCommandUseCase;
         this.deleteCommandUseCase = deleteCommandUseCase;
 
-        this.botListView = new BotListView('botListId');
-        this.createBotModalView = new CreateBotModalView('createBotModal');
-        this.createCommandModalView = new CreateCommandModalView('createCommandModal');
-        this.editBotModalView = new EditBotModalView('editBotModal');
-        this.editCommandModalView = new EditCommandModalView('editCommandModal');
+        this.botView = new BotView('botDescriptionContainer');
+        this.commandView = new CommandView('commandListContainer');
+        this.screenView = new ScreenView('setupScreen', 'appScreen');
+
+        this.botId = undefined;
     }
 
-    initialize() {
-        this.createBotModalView.initialize();
-        this.createCommandModalView.initialize();
-        this.editBotModalView.initialize();
-        this.editCommandModalView.initialize();
+    async initialize() {
+        let bot = await this.getBotUseCase.execute();
 
-        this.render();
+        if (!bot) {
+            console.log('Bot is not exist. Start bot installation.');
+            this.screenView.showScreen('setup');
+            const resultCreating = await this.createBotUseCase.execute();
+            console.log('resultCreating = ', resultCreating)
+            bot = await this.getBotUseCase.execute();
+        }
+
+        console.log('Bot = ', bot);
+        this.screenView.showScreen('app');
+        this.render(bot);
         this.bindEvents();
     }
 
     private bindEvents() {
-        const btnOpenBotCreationWindow = document.getElementById('openBotCreationWindow');
-        const btnOpenCommandCreationWindow = document.getElementById('openCommandCreationWindow');
-        const btnOpenCommandUpdateWindow = document.getElementById('openCommandUpdateWindow');
-        
-        if (btnOpenBotCreationWindow) {
-            btnOpenBotCreationWindow.addEventListener('click', () => {
-                this.createBotModalView.show();
-            });
-        }
-        if (btnOpenCommandCreationWindow) {
-            btnOpenCommandCreationWindow.addEventListener('click', () => {
-                this.createCommandModalView.show()
-            });
-        }
-        if (btnOpenCommandUpdateWindow) {
-            btnOpenCommandUpdateWindow.addEventListener('click', () => {
-                this.editCommandModalView.show()
-            });
-        }
-
-        this.botListView.onEditBot = (botId: number) => {
-            this.editBotModalView.show(botId);
-        }
-
-        this.createBotModalView.onAction = async () => {
-            const isValid = this.createBotModalView.validateForm();
-
-            if (!isValid) {
-                return false;
+        this.commandView.getContainer().addEventListener('click', (event) => {
+            const target = event.target as HTMLElement;
+            if (target.classList.contains('botCommandInstall') ) {
+                this.handleCommandInstall(target.dataset.command);
             }
-            let formData = await this.createBotModalView.getFormData();
-            console.log('formData = ', formData);
-            // const result = await this.createBotUseCase.execute(formData);
-            // console.log('result = ', result);
-            return true;
-        }
-
-        this.createCommandModalView.onAction = async () => {
-            const isValid = this.createCommandModalView.validateForm();
-
-            if (!isValid) {
-                return false;
-            }
-            let formData = await this.createCommandModalView.getFormData();
-            console.log('formData = ', formData);
-            // const result = await this.createCommandUseCase.execute(formData);
-            // console.log('result = ', result);
-            return true;
-        }
+        })
     }
 
-    private async render() {
-        const bots = await this.getBotsUseCase.execute();
-        this.botListView.render(bots);
-        this.createBotModalView.setAvailableBots(bots);
-        this.createCommandModalView.setAvailableBots(bots);
-        this.editBotModalView.setAvailableBots(bots);
-        this.editCommandModalView.setAvailableBots(bots);
+    private async render(bot: Bot | undefined) {
+        // const bot = await this.getBotUseCase.execute();
+        // console.log('Render bot data: ', bot);
+
+        this.botView.render(bot);
+        this.botId = bot?.ID;
+
+        const commands = await this.getCommandsUseCase.execute();
+        console.log('Render commands data: ', commands);
+        
+        this.commandView.render(commands);
+
+    }
+
+    async handleCommandInstall(commandName: string | undefined) {
+        if (commandName) {
+            this.commandView.setState(commandName, 'registering');
+
+            const commandId = await this.createCommandUseCase.execute(this.botId, commandName);
+
+            this.commandView.setState(commandName, 'registered');
+            this.commandView.setCommandId(commandName, commandId);
+        }
+
     }
 }
