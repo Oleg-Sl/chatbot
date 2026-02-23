@@ -1,7 +1,7 @@
 import enum
 from datetime import datetime, timezone, timedelta
 
-from sqlalchemy import String, Enum, CheckConstraint, func
+from sqlalchemy import String, Enum, CheckConstraint, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -23,7 +23,7 @@ class TaskReminders(Base):
     bot_id: Mapped[int] = mapped_column(CheckConstraint("bot_id > 0"), nullable=False)
     dialog_id: Mapped[str] = mapped_column(String(100), nullable=False)
     delay: Mapped[int] = mapped_column(CheckConstraint("delay > 0"), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(default=datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc))
     message: Mapped[str] = mapped_column(String(100), default='', nullable=False)
     to_user_id: Mapped[int] = mapped_column(CheckConstraint("delay > 0"), nullable=True)
     state: Mapped[TaskState] = mapped_column(Enum(TaskState), default=TaskState.PENDING, nullable=False)

@@ -3,11 +3,12 @@ from abc import ABC, abstractmethod
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.repositories.credentials import CredentialRepository
+from app.repositories.task_reminders import TaskReminderRepository
 
 
 class IUnitOfWork(ABC):
-    # credentials: Optional[CredentialRepository]
     credentials: CredentialRepository
+    task_reminders: TaskReminderRepository
 
     @abstractmethod
     def __init__(self):
@@ -39,8 +40,8 @@ class UnitOfWork(IUnitOfWork):
         self.session = self.session_factory()
         if self.session is None:
             raise RuntimeError("Session factory returned None")
-        # self.credentials = CredentialRepository(self.session) if self.session else None
         self.credentials = CredentialRepository(self.session)
+        self.task_reminders = TaskReminderRepository(self.session)
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:

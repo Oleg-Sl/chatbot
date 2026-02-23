@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel
 
 
@@ -7,3 +8,7 @@ class EventData(BaseModel):
     message: str
     dialog_id: str
     bot_id: int
+    command: Optional[str]
+    from_user_id: Optional[int]
+    command_params: Optional[str]
+

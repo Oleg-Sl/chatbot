@@ -3,7 +3,6 @@ from typing import List, Dict, Any, Optional
 
 from app.handlers.base_handler import BaseEventHandler
 from app.models.event_data import EventData
-from app.api.dependencies import IUnitOfWork
 
 
 class EventHandlerManager:
@@ -18,6 +17,7 @@ class EventHandlerManager:
         message = data.get('data[PARAMS][MESSAGE]', '').strip().strip('/').lower()
         dialog_id = data.get('data[PARAMS][DIALOG_ID]')
         bot_id = self._get_bot_id(data)
+        user_id = data.get('data[PARAMS][FROM_USER_ID]')
 
         print('domain = ', domain)
         print('event_type = ', event_type)
@@ -33,7 +33,10 @@ class EventHandlerManager:
             event_type=event_type,
             message=message,
             dialog_id=dialog_id,
-            bot_id=bot_id
+            bot_id=bot_id,
+            command=self._get_command(data),
+            command_params=self._get_command_params(data),
+            from_user_id=user_id
         )
 
         for handler in self.handlers:
@@ -45,4 +48,14 @@ class EventHandlerManager:
     def _get_bot_id(self, data: Dict[str, Any]) -> Optional[int]:
         for key in data.keys():
             if re.match(r'^data\[COMMAND\]\[\d+\]\[BOT_ID\]$', key):
+                return data[key]
+
+    def _get_command_params(self, data: Dict[str, Any]) -> Optional[str]:
+        for key in data.keys():
+            if re.match(r'^data\[COMMAND\]\[\d+\]\[COMMAND_PARAMS\]$', key):
+                return data[key]
+
+    def _get_command(self, data: Dict[str, Any]) -> Optional[str]:
+        for key in data.keys():
+            if re.match(r'^data\[COMMAND\]\[\d+\]\[COMMAND\]$', key):
                 return data[key]
