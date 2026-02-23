@@ -26,12 +26,12 @@ async def get_uow(session_factory = Depends(get_session_factory)) -> AsyncGenera
 UOWDep = Annotated[IUnitOfWork, Depends(get_uow)]
 
 
-def get_sender_client():
-    return SenderClient
-
-
 def get_bitrix_client(uow: UOWDep):
     return BitrixClient(uow)
+
+
+def get_sender_client(client: Annotated[BitrixClient, Depends(get_bitrix_client)]):
+    return SenderClient(client)
 
 
 def get_command_go_service(

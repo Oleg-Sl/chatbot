@@ -14,16 +14,16 @@ class SenderClient:
         message: str,
         keyboards: Optional[List[Dict[str, Any]]]
         ) -> bool:
-        # response = await self.client.call(
-        #     domain,
-        #     'im.message.add',
-        #     {
-        #         'DIALOG_ID': dialog_id,
-        #         'MESSAGE': message,
-        #         'KEYBOARD': keyboards if keyboards else None
-        #     }
-        # )
-        # print('Message send response:', response)
+        response = await self.client.call(
+            domain,
+            'im.message.add',
+            {
+                'DIALOG_ID': dialog_id,
+                'MESSAGE': message,
+                'KEYBOARD': keyboards if keyboards else None
+            }
+        )
+        print('Message send response:', response)
         print('>>> ', [
             domain,
             'im.message.add',

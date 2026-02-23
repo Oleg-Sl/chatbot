@@ -23,8 +23,9 @@ class CommandCommendService(BaseService):
         print('domain = ', domain)
         print('bot_id = ', bot_id)
         print('dialog_id = ', dialog_id)
-        message = ''
+        message = 'Напомнить о чате через:'
         keyboards = self.get_keyboards()
+        print('keyboards = ', keyboards)
         return await self.sender_client.send_message(
             domain,
             bot_id,
@@ -35,12 +36,14 @@ class CommandCommendService(BaseService):
     
     def get_keyboards(self):
         keyboards = []
+
         keyboards.append(CommandKeyboard(
             TEXT='Создать задачу',
             COMMAND='create_task',
             COMMAND_PARAMS='',
             BG_COLOR='#4b9b29'
         ).model_dump())
+
         for item in self.delay_buttons:
             keyboards.append(CommandKeyboard(
                 TEXT=str(item['text']),
@@ -48,4 +51,5 @@ class CommandCommendService(BaseService):
                 COMMAND_PARAMS=str(item['params']),
                 BG_COLOR='#344bff'
             ).model_dump())
+
         return keyboards

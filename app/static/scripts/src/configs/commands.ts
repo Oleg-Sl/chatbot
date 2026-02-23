@@ -59,6 +59,44 @@ export const COMMAND_FORM_CONFIG: ICommandCreation[] = [
             ],
             EVENT_COMMAND_ADD: 'https://database.tamamm.ru/chatbot/bot/event',
     },
+    {
+            BOT_ID: 0,
+            COMMAND: 'create_task',
+            COMMON: 'Y',
+            HIDDEN: 'Y',
+            LANG: [
+                {
+                    LANGUAGE_ID: 'ru',
+                    TITLE: 'Создать задачу',
+                    PARAMS: '',
+                },
+                {
+                    LANGUAGE_ID: 'en',
+                    TITLE: 'Create task',
+                    PARAMS: '',
+                },
+            ],
+            EVENT_COMMAND_ADD: 'https://database.tamamm.ru/chatbot/bot/event',
+    },
+    {
+            BOT_ID: 0,
+            COMMAND: 'pause',
+            COMMON: 'Y',
+            HIDDEN: 'Y',
+            LANG: [
+                {
+                    LANGUAGE_ID: 'ru',
+                    TITLE: 'Напоминание',
+                    PARAMS: '',
+                },
+                {
+                    LANGUAGE_ID: 'en',
+                    TITLE: 'Notification',
+                    PARAMS: '',
+                },
+            ],
+            EVENT_COMMAND_ADD: 'https://database.tamamm.ru/chatbot/bot/event',
+    },
     // {
     //         BOT_ID: 0,
     //         COMMAND: 'diz',

@@ -2,6 +2,7 @@ from app.services.base_service import BaseService
 from app.api.dependencies import IUnitOfWork
 from app.clients.sender_client import SenderClient
 from app.models.domain.keyboards import LinkKeyboard
+from app.models.event_data import EventData
 
 
 class CommandGoService(BaseService):
@@ -28,8 +29,6 @@ class CommandGoService(BaseService):
             LINK='https://yandex.com',
             BG_COLOR='#5ad240'
         ).model_dump())
-
-        print(keyboards)
 
         return await self.sender_client.send_message(
             domain=domain,

@@ -25,7 +25,7 @@ class TaskReminders(Base):
     delay: Mapped[int] = mapped_column(CheckConstraint("delay > 0"), nullable=False)
     created_at: Mapped[datetime] = mapped_column(default=datetime.now(timezone.utc))
     message: Mapped[str] = mapped_column(String(100), default='', nullable=False)
-    to_user_id:  Mapped[int] = mapped_column(CheckConstraint("delay > 0"), nullable=True)
+    to_user_id: Mapped[int] = mapped_column(CheckConstraint("delay > 0"), nullable=True)
     state: Mapped[TaskState] = mapped_column(Enum(TaskState), default=TaskState.PENDING, nullable=False)
 
     @hybrid_property
