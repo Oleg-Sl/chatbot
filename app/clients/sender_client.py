@@ -13,7 +13,7 @@ class SenderClient:
         bot_id: int,
         dialog_id: str,
         message: str,
-        keyboards: Optional[List[Dict[str, Any]]]
+        keyboards: Optional[List[Dict[str, Any]]] = None
         ) -> bool:
         response = await self.client.call(
             domain,

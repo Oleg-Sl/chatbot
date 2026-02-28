@@ -8,6 +8,7 @@ from fastapi.templating import Jinja2Templates
 from app.schemas.credentials import CredentialsInputSchema, CredentialSchema
 from app.api.dependencies import UOWDep
 from app.services.credentials import CredentialsService
+from app.services.scheduler_service import SchedulerService
 
 
 router = APIRouter(

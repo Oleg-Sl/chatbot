@@ -1,9 +1,6 @@
 from typing import Optional
 from app.services.base_service import BaseService
 from app.api.dependencies import IUnitOfWork
-from app.clients.sender_client import SenderClient
-from app.models.domain.keyboards import LinkKeyboard
-from app.models.event_data import EventData
 
 
 class CommandPauseService(BaseService):
@@ -17,6 +14,7 @@ class CommandPauseService(BaseService):
                     'domain': domain,
                     'bot_id': bot_id,
                     'dialog_id': dialog_id,
+                    'message': 'Наппоминание о чате',
                     'delay': int(command_params) if command_params and command_params.isdigit() else 0,
                     'to_user_id': from_user_id,
                 })

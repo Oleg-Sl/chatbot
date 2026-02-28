@@ -55,7 +55,7 @@ class UnitOfWork(IUnitOfWork):
         finally:
             await self.session.close()
             self.session = None
-
+    
     async def commit(self) -> None:
         if self.session is not None:
             await self.session.commit()
