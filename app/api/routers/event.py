@@ -58,3 +58,16 @@ async def event_bot(
         status = False
 
     return {"status": status}
+
+
+@router.post("/event_test")
+async def event_test(
+    request: Request,
+    ):
+    headers = dict(request.headers)
+    data = await request.body()
+
+    logger.info(f"HEADERS: {headers}")
+    logger.info(f"BODY: {data}")
+
+    return {}
