@@ -1,62 +1,70 @@
+import re
+import datetime
 from typing import Optional
 
 from app.api.dependencies import IUnitOfWork
-from app.clients.sender_client import SenderClient
+from app.clients.dialog_client import DialogClient
 from app.models.database.dialog_sessions import DialogSessions
+from app.schemas.dtos.add_message_input_dto import AddMessageInputDTO
+from app.domains.dialog import Dialog, SessionStatus
 
 
 class MessageAddService:
-    def __init__(self, uow: IUnitOfWork, sender_client: SenderClient) -> None:
+    def __init__(self, uow: IUnitOfWork, dialog_client: DialogClient) -> None:
         self.uow = uow
-        self.sender_client = sender_client
+        self.dialog_client = dialog_client
 
     async def handle(
             self,
-            domain,
-            connector_id,
-            connector_line_id,
-            connector_user_id,
-            connector_chat_id,
-            from_user_id
+            domain: str,
+            data: AddMessageInputDTO
         ) -> bool:
 
-        if from_user_id == connector_user_id:
-            return await self.update_session(
-                connector_id,
-                connector_line_id,
-                connector_user_id,
-                connector_chat_id,
-                {
-                    'client_message_exists': True
-                }
+        if not data.user_id:
+            return False
+
+        async with self.uow as uow:
+            dialog = await uow.dialog_session.search_by_connector_chat_id(data.connector_chat_id)
+
+        if dialog and dialog.is_taken():
+            return False
+        
+        if dialog is None:
+            dialog = await self.generate_dialog(domain, data)
+
+        dialog.add_message(data.user_id)
+
+        async with self.uow as uow:
+            dialog_id = await uow.dialog_session.save(dialog)
+
+        if dialog and dialog.contact_id and dialog.is_taken():
+            result = await self.dialog_client.update_contact(
+                domain=domain,
+                contact_id=dialog.contact_id,
+                date_communication=datetime.datetime.now().strftime('%Y-%m-%d')
             )
 
-        return await self.update_session(
-            connector_id,
-            connector_line_id,
-            connector_user_id,
-            connector_chat_id,
-            {
-                'manager_message_exists': True
-            }
+        return True if dialog_id else False
+
+    async def generate_dialog(self, domain: str, data: AddMessageInputDTO) -> Dialog:
+        dict_dialog = await self.dialog_client.get_dialog_data(
+            domain=domain,
+            user_code=f'{data.connector_id}|{data.connector_line_id}|{data.connector_chat_id}|{data.connector_user_id}'
+        )
+        contact_id = self.get_contact_id(dict_dialog)
+
+        return Dialog(
+            ident=None,
+            connector_id=data.connector_id,
+            connector_line_id=data.connector_line_id,
+            connector_user_id=data.connector_user_id,
+            connector_chat_id=data.connector_chat_id,
+            chat_id=dict_dialog['bitrix_chat_id'],
+            contact_id=contact_id
         )
 
-    async def update_session(self, connector_id, connector_line_id, connector_user_id, connector_chat_id, data) -> Optional[int]:
-        try:
-            async with self.uow as uow:
-                dialogs = await uow.dialog_session.filter({
-                    DialogSessions.connector_id == connector_id,
-                    DialogSessions.connector_line_id == connector_line_id,
-                    DialogSessions.connector_user_id == connector_user_id,
-                    DialogSessions.connector_chat_id == connector_chat_id
-                })
-                if dialogs:
-                    dialog_id = dialogs[0].id
-                    await uow.dialog_session.edit_one(
-                        dialog_id,
-                        {
-                            'session_status': DialogSessions.SessionStatus.CLOSED
-                        }
-                    )
-        except Exception as e:
-            print('Error while updating status of dialog session: ', e)
+    def get_contact_id(self, dialog_data: dict) -> Optional[str]:
+        for val in dialog_data.values():
+            match = re.search(r'CONTACT\s*\|\s*(\d+)', val)
+            if match:
+                return match.group(1)

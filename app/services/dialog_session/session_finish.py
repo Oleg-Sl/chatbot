@@ -1,7 +1,9 @@
+import datetime
 from typing import Optional
 from app.api.dependencies import IUnitOfWork
 from app.clients.dialog_client import DialogClient
 from app.models.database.dialog_sessions import DialogSessions
+from app.schemas.dtos.closed_dialog_input_dto import ClosedDialogInputDTO
 
 
 class SessionFinishService:
@@ -11,38 +13,26 @@ class SessionFinishService:
 
     async def handle(
         self,
-        domain,
-        connector_id,
-        connector_line_id,
-        connector_user_id,
-        chat_id
+        domain: str,
+        data: ClosedDialogInputDTO
         ) -> bool:
 
-        result = await self.update_session(
-            connector_id=connector_id,
-            connector_line_id=connector_line_id,
-            connector_user_id=connector_user_id,
-            chat_id=chat_id
-        )
-    
-        return True
+        async with self.uow as uow:
+            dialog = await uow.dialog_session.search_by_bitrix_chat_id(data.chat_id)
 
-    async def update_session(self, connector_id, connector_line_id, connector_user_id, chat_id) -> Optional[int]:
-        try:
-            async with self.uow as uow:
-                dialogs = await uow.dialog_session.filter({
-                    DialogSessions.connector_id == connector_id,
-                    DialogSessions.connector_line_id == connector_line_id,
-                    DialogSessions.connector_user_id == connector_user_id,
-                    DialogSessions.chat_id == chat_id
-                })
-                if dialogs:
-                    dialog_id = dialogs[0].id
-                    await uow.dialog_session.edit_one(
-                        dialog_id,
-                        {
-                            'session_status': DialogSessions.SessionStatus.CLOSED
-                        }
-                    )
-        except Exception as e:
-            print('Error while updating status of dialog session: ', e)
+        if dialog is None:
+            return False
+
+        dialog.closed_dialog()
+
+        async with self.uow as uow:
+            dialog_id = await uow.dialog_session.save(dialog)
+
+        if dialog.contact_id:
+            result = await self.dialog_client.update_contact(
+                domain=domain,
+                contact_id=dialog.contact_id,
+                date_communication=datetime.datetime.now().strftime('%Y-%m-%d')
+            )
+    
+        return True if dialog_id else False

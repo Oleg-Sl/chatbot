@@ -19,12 +19,6 @@ class EventHandlerManager:
         bot_id = self._get_bot_id(data)
         user_id = data.get('data[PARAMS][FROM_USER_ID]')
 
-        # print('domain = ', domain)
-        # print('event_type = ', event_type)
-        # print('message = ', message)
-        # print('bot_id = ', bot_id)
-        # print('dialog_id = ', dialog_id)
-
         if domain is None or event_type is None or dialog_id is None or bot_id is None:
             return False
 

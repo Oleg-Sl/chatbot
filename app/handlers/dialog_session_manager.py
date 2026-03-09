@@ -6,6 +6,9 @@ from app.handlers.base_handler import BaseEventHandler
 from app.services.dialog_session.message_add import MessageAddService
 from app.services.dialog_session.session_start import SessionStartService
 from app.services.dialog_session.session_finish import SessionFinishService
+from app.schemas.dtos.add_message_input_dto import AddMessageInputDTO
+from app.schemas.dtos.start_dialog_input_dto import StartDialogInputDTO
+from app.schemas.dtos.closed_dialog_input_dto import ClosedDialogInputDTO
 
 
 class DialogSessionHandlerManager:
@@ -23,52 +26,50 @@ class DialogSessionHandlerManager:
         event_type = data.get('event')
         domain = data.get('auth[domain]')
 
-        connector_id = data.get('data[DATA][connector][connector_id]')
-        connector_line_id = data.get('data[DATA][connector][line_id]')
-        connector_user_id = data.get('data[DATA][connector][user_id]')
+        connector_id: Optional[str] = data.get('data[DATA][connector][connector_id]')
+        connector_line_id: Optional[str] = data.get('data[DATA][connector][line_id]')
+        connector_user_id: Optional[str] = data.get('data[DATA][connector][user_id]')
+        chat_id: Optional[str] = data.get('data[DATA][connector][chat_id]')
 
-        if not all([domain, connector_id, connector_line_id, connector_user_id]):
+        if not domain or not connector_id or not connector_line_id or not connector_user_id or not chat_id:
             return False
 
-        if event_type != 'ONSESSIONSTART':
-            chat_id = data.get('data[DATA][connector][chat_id]')
+        if event_type == 'ONSESSIONSTART':
             return await self.session_start_service.handle(
                 domain,
-                connector_id,
-                connector_line_id,
-                connector_user_id,
-                chat_id
+                StartDialogInputDTO(
+                    connector_id=connector_id,
+                    connector_line_id=connector_line_id,
+                    connector_user_id=connector_user_id,
+                    chat_id=chat_id
+                )
             )
-        elif event_type == 'ONSESSIONFINISH':
-            chat_id = data.get('data[DATA][connector][chat_id]')
+            
+        if event_type == 'ONSESSIONFINISH':
             return await self.session_finish_service.handle(
                 domain,
-                connector_id,
-                connector_line_id,
-                connector_user_id,
-                chat_id
+                ClosedDialogInputDTO(
+                    connector_id=connector_id,
+                    connector_line_id=connector_line_id,
+                    connector_user_id=connector_user_id,
+                    chat_id=chat_id
+                )
             )
-            # TODO: Сохранить запись даты закрытия диалога в Битрикс
-        elif event_type == 'ONOPENLINEMESSAGEADD':
-            connector_chat_id = data.get('data[DATA][connector][chat_id]'),
-            user_id = data.get('data[DATA][message][user_id]')
+            
+        if event_type == 'ONOPENLINEMESSAGEADD':
 
+            bx_chat_id = data.get('data[DATA][message][chat_id]')
+            user_id = data.get('data[DATA][message][user_id]')
             return await self.message_add_service.handle(
-                domain=domain,
-                connector_id=connector_id,
-                connector_line_id=connector_line_id,
-                connector_user_id=connector_user_id,
-                connector_chat_id=connector_chat_id,
-                from_user_id=user_id
+                domain,
+                AddMessageInputDTO(
+                    connector_id=connector_id,
+                    connector_line_id=connector_line_id,
+                    connector_user_id=connector_user_id,
+                    connector_chat_id=chat_id,
+                    chat_id=bx_chat_id,
+                    user_id=user_id
+                )    
             )
-            # chat_id = data.get('data[DATA][connector][chat_id]')
-            # user_id = data.get('data[DATA][message][user_id]')
-            # if user_id == connector_user_id:
-            #     print('Client message')
-            #     # TODO: Сохранить в БД что получено сообщение от клиента
-            # else:
-            #     print('Manager message')
-            #     # TODO: Сохранить в БД что получено сообщение от менеджера
-            # # TODO: Проверить в БД, есть ли сообщения от менеджера и от клиента, если есть оба то обновить поле даты в контакте в Битриксе
 
         return False

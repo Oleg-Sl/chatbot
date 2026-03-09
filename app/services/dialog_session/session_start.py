@@ -2,6 +2,8 @@ import re
 from typing import Optional
 from app.api.dependencies import IUnitOfWork
 from app.clients.dialog_client import DialogClient
+from app.schemas.dtos.start_dialog_input_dto import StartDialogInputDTO
+from app.domains.dialog import Dialog, SessionStatus
 
 
 class SessionStartService:
@@ -11,44 +13,38 @@ class SessionStartService:
 
     async def handle(
         self,
-        domain,
-        connector_id,
-        connector_line_id,
-        connector_user_id,
-        chat_id
+        domain: str,
+        data: StartDialogInputDTO
         ) -> bool:
+
         dialog = await self.dialog_client.get_dialog_data(
             domain=domain,
-            dialog_id=f'chat{chat_id}'
+            dialog_id=f'chat{data.chat_id}'
         )
         contact_id = self.get_contact_id(dialog)
         connector_chat_id = self.get_connector_chat_id(dialog)
-        task_id = await self.create_dialog_session(
-            connector_id=connector_id,
-            connector_line_id=connector_line_id,
-            connector_user_id=connector_user_id,
-            connector_chat_id=connector_chat_id,
-            contact_id=contact_id,
-            chat_id=chat_id
-        )
 
-        return True if task_id else False
+        async with self.uow as uow:
+            dialog = await uow.dialog_session.search_by_bitrix_chat_id(data.chat_id)
+            
+        if dialog is None:
+            dialog = Dialog(
+                ident=None,
+                connector_id=data.connector_id,
+                connector_line_id=data.connector_line_id,
+                connector_user_id=data.connector_user_id,
+                connector_chat_id=connector_chat_id,
+                chat_id=data.chat_id,
+                contact_id=contact_id
+            )
 
-    async def create_dialog_session(self, connector_id, connector_line_id, connector_user_id, connector_chat_id, contact_id, chat_id) -> Optional[int]:
-        try:
-            async with self.uow:
-                task_id = await self.uow.dialog_session.create_or_update({
-                    "connector_id": connector_id,
-                    "connector_line_id": connector_line_id,
-                    "connector_user_id": connector_user_id,
-                    "connector_chat_id": connector_chat_id,
-                    "contact_id": contact_id,
-                    "chat_id": chat_id
-                })
-                await self.uow.commit()
-                return task_id
-        except Exception as e:
-            print('Error while adding task reminder: ', e)
+        dialog.contact_id = contact_id
+        dialog.start_dialog()
+
+        async with self.uow as uow:
+            dialog_id = await uow.dialog_session.save(dialog)
+        
+        return True if dialog_id else False
 
     def get_contact_id(self, dialog_data: dict) -> Optional[str]:
         for val in dialog_data.values():
@@ -58,5 +54,5 @@ class SessionStartService:
     
     def get_connector_chat_id(self, dialog_data: dict) -> Optional[str]:
         items = dialog_data['entity_id'].split('|')
-        if len(items) == 3:
+        if len(items) > 3:
             return items[2]
