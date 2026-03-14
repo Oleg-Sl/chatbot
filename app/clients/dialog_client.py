@@ -2,6 +2,8 @@ import pprint
 from typing import Optional
 
 from app.clients.bx24_client import BitrixClient
+# from app.clients.fake_api_client import BitrixClient
+# from app.clients.bitrix_api_client import BitrixApiClient
 
 
 class DialogClient:
@@ -26,7 +28,7 @@ class DialogClient:
             'imopenlines.dialog.get',
             fields
         )
-
+        print('RESPONSE = ', response)
         result = response.get('result', {})
 
         return {

@@ -1,8 +1,9 @@
 import re
 import datetime
 from typing import Optional
+from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
-from app.api.dependencies import IUnitOfWork
+from app.api.dependencies import IUnitOfWork, UnitOfWork
 from app.clients.dialog_client import DialogClient
 from app.models.database.dialog_sessions import DialogSessions
 from app.schemas.dtos.add_message_input_dto import AddMessageInputDTO
@@ -23,8 +24,8 @@ class MessageAddService:
         if not data.user_id:
             return False
 
-        async with self.uow as uow:
-            dialog = await uow.dialog_session.search_by_connector_chat_id(data.connector_chat_id)
+        # async with UnitOfWork(self.session_factory) as uow:
+        dialog = await self.uow.dialog_session.search_by_connector_chat_id(data.connector_chat_id)
 
         if dialog and dialog.is_taken():
             return False
@@ -34,8 +35,9 @@ class MessageAddService:
 
         dialog.add_message(data.user_id)
 
-        async with self.uow as uow:
-            dialog_id = await uow.dialog_session.save(dialog)
+        # async with UnitOfWork(self.session_factory) as uow:
+        dialog_id = await self.uow.dialog_session.save(dialog)
+        await self.uow.commit()
 
         if dialog and dialog.contact_id and dialog.is_taken():
             result = await self.dialog_client.update_contact(
@@ -43,6 +45,7 @@ class MessageAddService:
                 contact_id=dialog.contact_id,
                 date_communication=datetime.datetime.now().strftime('%Y-%m-%d')
             )
+            print('RESULT = ', result)
 
         return True if dialog_id else False
 

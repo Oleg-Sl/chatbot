@@ -2,29 +2,31 @@ import json
 import time
 from typing import Dict, Union
 from requests import post, adapters, exceptions
+from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 from app.repositories.credentials import CredentialRepository
 from app.models.database.credentials import Credentials
 from app.database.uow import IUnitOfWork, UnitOfWork
-
+from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 
 adapters.DEFAULT_RETRIES = 10
 
 
-class BitrixClient:
+class BitrixApiClient:
     api_url = 'https://%s/rest/%s.json'
     oauth_url = 'https://oauth.bitrix.info/oauth/token/'
     timeout = 60
 
-    def __init__(self, uow: IUnitOfWork):
-        self.uow = uow
+    def __init__(self, session_factory: async_sessionmaker[AsyncSession]):
+        self.session_factory = session_factory
 
     async def load_token(self, domain: str):
-        return await self.uow.credentials.filter(Credentials.domain == domain)
+        async with UnitOfWork(self.session_factory) as uow:
+            token = await uow.credentials.filter(Credentials.domain == domain)
+        return token
 
     async def refresh_tokens(self, token_data: Credentials) -> Union[bool, Dict]:
-        print('>>>>>>>>> refresh_tokens ')
         try:
             r = post(
                 self.oauth_url,
@@ -36,15 +38,16 @@ class BitrixClient:
                 }
             )
             result = r.json()
-
-            await self.uow.credentials.edit_one(
-                ident = token_data.id,
-                data = {
-                    'auth_token': result['access_token'],
-                    'refresh_token': result['refresh_token']
-                }
-            )
-            await self.uow.commit()
+            print('REFRESH TOKEN = ', result)
+            async with UnitOfWork(self.session_factory) as uow:
+                await uow.credentials.edit_one(
+                    ident = token_data.id,
+                    data = {
+                        'auth_token': result['access_token'],
+                        'refresh_token': result['refresh_token']
+                    }
+                )
+                await uow.commit()
             return True
         except Exception as e:
             return {'error': f"Failed to refresh token: {e}"}
@@ -69,9 +72,7 @@ class BitrixClient:
             result = dict(error='Timeout waiting expired [%s sec]' % str(self.timeout))
         except exceptions.ConnectionError:
             result = dict(error='Max retries exceeded [' + str(adapters.DEFAULT_RETRIES) + ']')
-        print('RESULT = ', result)
-        print('METHOD = ', method)
-        print('PARAMS = ', params)
+
         if 'error' in result and result['error'] in ('NO_AUTH_FOUND', 'expired_token'):
             result_update_token = await self.refresh_tokens(token_data)
             if result_update_token is not True:

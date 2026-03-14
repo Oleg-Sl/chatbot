@@ -8,8 +8,9 @@ from fastapi.templating import Jinja2Templates
 
 from app.api.dependencies import UOWDep, IUnitOfWork
 # from app.handlers.event_handler_manager import EventHandlerManager
-from app.handlers.dialog_session_manager import DialogSessionHandlerManager
-from app.api.dependencies import get_session_dialog_handler
+# from app.handlers.dialog_session_manager import DialogSessionHandlerManager
+from app.handlers.dialog_events_handler import DialogEventHandler
+from app.api.dependencies import get_dialog_event_handler
 
 
 router = APIRouter(
@@ -40,7 +41,7 @@ logger.addHandler(file_handler)
 @router.post("/event")
 async def event_bot(
     request: Request,
-    dialog_handler_manager: DialogSessionHandlerManager = Depends(get_session_dialog_handler),
+    dialog_event_handler: DialogEventHandler = Depends(get_dialog_event_handler),
     ):
 
     headers = dict(request.headers)
@@ -52,7 +53,7 @@ async def event_bot(
 
     status = None
     try:
-        status = await dialog_handler_manager.handle(form)
+        status = await dialog_event_handler.handle(form)
     except Exception as e:
         print('error = ', e)
         status = False

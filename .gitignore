@@ -48,3 +48,6 @@ logsые
 fakeApiClient.ts
 dist
 dist/*
+old
+old/*
+fake_api_client.py

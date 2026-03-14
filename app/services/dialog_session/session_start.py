@@ -1,6 +1,8 @@
 import re
 from typing import Optional
-from app.api.dependencies import IUnitOfWork
+from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
+
+from app.api.dependencies import IUnitOfWork, UnitOfWork
 from app.clients.dialog_client import DialogClient
 from app.schemas.dtos.start_dialog_input_dto import StartDialogInputDTO
 from app.domains.dialog import Dialog, SessionStatus
@@ -24,8 +26,8 @@ class SessionStartService:
         contact_id = self.get_contact_id(dialog)
         connector_chat_id = self.get_connector_chat_id(dialog)
 
-        async with self.uow as uow:
-            dialog = await uow.dialog_session.search_by_bitrix_chat_id(data.chat_id)
+        # async with UnitOfWork(self.session_factory) as uow:
+        dialog = await self.uow.dialog_session.search_by_bitrix_chat_id(data.chat_id)
             
         if dialog is None:
             dialog = Dialog(
@@ -41,8 +43,9 @@ class SessionStartService:
         dialog.contact_id = contact_id
         dialog.start_dialog()
 
-        async with self.uow as uow:
-            dialog_id = await uow.dialog_session.save(dialog)
+        # async with UnitOfWork(self.session_factory) as uow:
+        dialog_id = await self.uow.dialog_session.save(dialog)
+        await self.uow.commit()
         
         return True if dialog_id else False
 

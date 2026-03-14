@@ -9,6 +9,8 @@ from app.api.routers.routers import all_routers
 from app.services.scheduler_service import SchedulerService
 from app.api.dependencies import get_session_factory
 from app.jobs.run_task import run_tasks
+from app.jobs.run_dialog_tasks import run_dialog_tasks
+
 
 
 sys.dont_write_bytecode = True
@@ -20,7 +22,8 @@ scheduler_service = SchedulerService(get_session_factory())
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
-        await scheduler_service.add_task(run_tasks, trigger="interval", seconds=60)
+        # await scheduler_service.add_task(run_tasks, trigger="interval", seconds=120, jitter=30)
+        await scheduler_service.add_task(run_dialog_tasks, trigger="interval", seconds=60, jitter=30)
         scheduler_service.start()
         yield
     finally:
@@ -68,4 +71,6 @@ async def test():
 # alembic init migrations
 # alembic revision --message="Initial" --autogenerate
 # alembic revision --autogenerate -m "Change type of field created_at"
+# alembic revision --autogenerate -m "Added table of dialog evenets"
+# alembic revision --autogenerate -m "Updated table of dialog evenets"
 # alembic upgrade head

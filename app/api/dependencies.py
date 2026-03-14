@@ -8,7 +8,8 @@ from app.clients.sender_client import SenderClient
 from app.clients.dialog_client import DialogClient
 from app.clients.bx24_client import BitrixClient
 from app.handlers.event_handler_manager import EventHandlerManager
-from app.handlers.dialog_session_manager import DialogSessionHandlerManager
+# from app.handlers.dialog_session_manager import DialogSessionHandlerManager
+from app.handlers.dialog_events_handler import DialogEventHandler
 from app.handlers.command_handler import CommandHandler
 from app.services.command.command_go import CommandGoService
 from app.services.command.command_commend import CommandCommendService
@@ -18,6 +19,7 @@ from app.services.command.command_createtask import CommandCreateTaskService
 from app.services.dialog_session.message_add import MessageAddService
 from app.services.dialog_session.session_start import SessionStartService
 from app.services.dialog_session.session_finish import SessionFinishService
+from app.services.dialog_session.dialog_events_service import DialogEventService
 
 
 def get_session_factory() -> async_sessionmaker[AsyncSession]:
@@ -121,15 +123,23 @@ def get_session_finish_service(
     return SessionFinishService(uow, dialog_client)
 
 
+def get_dialog_event_service(uow: UOWDep) -> DialogEventService:
+    return DialogEventService(uow)
 
-def get_session_dialog_handler(
-    message_add_service: Annotated[MessageAddService, Depends(get_message_add_service)],
-    session_start_service: Annotated[SessionStartService, Depends(get_session_start_service)],
-    session_finish_service: Annotated[SessionFinishService, Depends(get_session_finish_service)],
-    ) -> DialogSessionHandlerManager:
-    return DialogSessionHandlerManager(
-        message_add_service,
-        session_start_service,
-        session_finish_service
-    )
 
+
+# def get_session_dialog_handler(
+#     message_add_service: Annotated[MessageAddService, Depends(get_message_add_service)],
+#     session_start_service: Annotated[SessionStartService, Depends(get_session_start_service)],
+#     session_finish_service: Annotated[SessionFinishService, Depends(get_session_finish_service)],
+#     ) -> DialogSessionHandlerManager:
+#     return DialogSessionHandlerManager(
+#         message_add_service,
+#         session_start_service,
+#         session_finish_service
+#     )
+
+def get_dialog_event_handler(
+    dialog_events_service: Annotated[DialogEventService, Depends(get_dialog_event_service)],
+    ) -> DialogEventHandler:
+    return DialogEventHandler(dialog_events_service)

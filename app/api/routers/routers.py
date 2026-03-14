@@ -1,10 +1,10 @@
 from .bitrix import router as bitrix_router
 from .event import router as event_router
-from .dialog_session_event import router as dialog_session_router
+from .dialog_events import router as dialog_events_router
 
 
 all_routers = [
     bitrix_router,
     event_router,
-    dialog_session_router,
+    dialog_events_router,
 ]

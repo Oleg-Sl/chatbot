@@ -5,12 +5,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.repositories.credentials import CredentialRepository
 from app.repositories.task_reminders import TaskReminderRepository
 from app.repositories.dialog_session import DialogSessionRepository
-
+from app.repositories.dialog_event import DialogEventRepository
 
 class IUnitOfWork(ABC):
     credentials: CredentialRepository
     task_reminders: TaskReminderRepository
     dialog_session: DialogSessionRepository
+    dialog_event: DialogEventRepository
 
     @abstractmethod
     def __init__(self):
@@ -45,11 +46,13 @@ class UnitOfWork(IUnitOfWork):
         self.credentials = CredentialRepository(self.session)
         self.task_reminders = TaskReminderRepository(self.session)
         self.dialog_session = DialogSessionRepository(self.session)
+        self.dialog_event = DialogEventRepository(self.session)
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
         if self.session is None:
             return
+
         try:
             if exc_type:
                 await self.rollback()
