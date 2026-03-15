@@ -23,7 +23,7 @@ scheduler_service = SchedulerService(get_session_factory())
 async def lifespan(app: FastAPI):
     try:
         # await scheduler_service.add_task(run_tasks, trigger="interval", seconds=120, jitter=30)
-        await scheduler_service.add_task(run_dialog_tasks, trigger="interval", seconds=60, jitter=30)
+        await scheduler_service.add_task(run_dialog_tasks, trigger="interval", seconds=30)
         scheduler_service.start()
         yield
     finally:

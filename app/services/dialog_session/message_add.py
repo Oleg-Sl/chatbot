@@ -24,8 +24,10 @@ class MessageAddService:
         if not data.user_id:
             return False
 
-        # async with UnitOfWork(self.session_factory) as uow:
+        print('data.connector_chat_id = ', data)
         dialog = await self.uow.dialog_session.search_by_connector_chat_id(data.connector_chat_id)
+
+        print('=====>>>>> ', dialog)
 
         if dialog and dialog.is_taken():
             return False
@@ -34,6 +36,7 @@ class MessageAddService:
             dialog = await self.generate_dialog(domain, data)
 
         dialog.add_message(data.user_id)
+        print('=====>>>>> ', dialog)
 
         # async with UnitOfWork(self.session_factory) as uow:
         dialog_id = await self.uow.dialog_session.save(dialog)

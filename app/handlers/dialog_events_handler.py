@@ -29,15 +29,15 @@ class DialogEventHandler:
         connector_line_id: Optional[str] = data.get('data[DATA][connector][line_id]')
         connector_user_id: Optional[str] = data.get('data[DATA][connector][user_id]')
         connector_chat_id: Optional[str] = data.get('data[DATA][connector][chat_id]')
-        bitrix_chat_id: Optional[str] = data.get('data[DATA][connector][chat_id]')
-        from_user_id: Optional[str] = data.get('data[DATA][message][user_id]')
+        bitrix_chat_id: Optional[str]    = data.get('data[DATA][connector][chat_id]')
+        from_user_id: Optional[str]      = data.get('data[DATA][message][user_id]')
 
         if event_type == 'ONSESSIONSTART' or event_type == 'ONSESSIONFINISH':
             connector_chat_id = None
 
         if event_type == 'ONOPENLINEMESSAGEADD':
             bitrix_chat_id = data.get('data[DATA][message][chat_id]')
-        
+
         if not domain or not connector_id or not connector_line_id or not connector_user_id:
             return False
 

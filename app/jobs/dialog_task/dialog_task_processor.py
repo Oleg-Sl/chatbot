@@ -26,6 +26,8 @@ class DialogTaskProcessor:
 
         result = None
 
+        print('task = ', task)
+
         if task.event == 'ONSESSIONSTART':
             result = await self.session_start_service.handle(
                 task.domain,
@@ -55,7 +57,7 @@ class DialogTaskProcessor:
                     connector_id=task.connector_id,
                     connector_line_id=str(task.connector_line_id),
                     connector_user_id=str(task.connector_user_id),
-                    connector_chat_id=str(task.bitrix_chat_id),
+                    connector_chat_id=str(task.connector_chat_id),
                     chat_id=str(task.bitrix_chat_id),
                     user_id=str(task.from_user_id)
                 )    
