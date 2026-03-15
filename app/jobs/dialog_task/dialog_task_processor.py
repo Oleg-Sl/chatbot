@@ -26,8 +26,6 @@ class DialogTaskProcessor:
 
         result = None
 
-        print('task = ', task)
-
         if task.event == 'ONSESSIONSTART':
             result = await self.session_start_service.handle(
                 task.domain,
@@ -62,11 +60,8 @@ class DialogTaskProcessor:
                     user_id=str(task.from_user_id)
                 )    
             )
-        
-        print('RESULT!!!')
 
         event_id = await self.uow.dialog_event.completed_processing(task.ident)
         await self.uow.commit()
-        print('EVENT ID = ', event_id)
         
         return result

@@ -46,7 +46,8 @@ class DialogClient:
             {
                 'id': contact_id,
                 'fields': {
-                    'UF_CRM_1687673321747': date_communication
+                    'UF_CRM_1687673321747': date_communication,
+                    'UF_CRM_1773559525': 'Y'
                 }
             }
         )

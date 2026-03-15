@@ -1,19 +1,11 @@
-import re
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any, Optional
 
-from app.handlers.base_handler import BaseEventHandler
-# from app.models.event_data import EventData
 from app.services.dialog_session.dialog_events_service import DialogEventService
 from app.schemas.dtos.dialog_events_input_dto import DialogEventInputDTO
-# from app.services.dialog_session.message_add import MessageAddService
-# from app.services.dialog_session.session_start import SessionStartService
-# from app.services.dialog_session.session_finish import SessionFinishService
-# from app.schemas.dtos.add_message_input_dto import AddMessageInputDTO
-# from app.schemas.dtos.start_dialog_input_dto import StartDialogInputDTO
-# from app.schemas.dtos.closed_dialog_input_dto import ClosedDialogInputDTO
 
 
 class DialogEventHandler:
+    ignore_event_from_users = set([20949, ])
     def __init__(self, dialog_events_service: DialogEventService) -> None:
         self.dialog_events_service = dialog_events_service
 
@@ -31,6 +23,9 @@ class DialogEventHandler:
         connector_chat_id: Optional[str] = data.get('data[DATA][connector][chat_id]')
         bitrix_chat_id: Optional[str]    = data.get('data[DATA][connector][chat_id]')
         from_user_id: Optional[str]      = data.get('data[DATA][message][user_id]')
+
+        if from_user_id and int(from_user_id) in self.ignore_event_from_users:
+            return False
 
         if event_type == 'ONSESSIONSTART' or event_type == 'ONSESSIONFINISH':
             connector_chat_id = None

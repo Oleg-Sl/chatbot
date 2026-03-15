@@ -26,7 +26,6 @@ class SessionStartService:
         contact_id = self.get_contact_id(dialog)
         connector_chat_id = self.get_connector_chat_id(dialog)
 
-        # async with UnitOfWork(self.session_factory) as uow:
         dialog = await self.uow.dialog_session.search_by_bitrix_chat_id(data.chat_id)
             
         if dialog is None:
@@ -43,7 +42,6 @@ class SessionStartService:
         dialog.contact_id = contact_id
         dialog.start_dialog()
 
-        # async with UnitOfWork(self.session_factory) as uow:
         dialog_id = await self.uow.dialog_session.save(dialog)
         await self.uow.commit()
         
