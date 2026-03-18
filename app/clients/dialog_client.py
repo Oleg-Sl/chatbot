@@ -39,16 +39,20 @@ class DialogClient:
             "entity_data_3": result.get('entity_data_3'),
         }
 
-    async def update_contact(self, domain: str, contact_id: str, date_communication: str) -> bool:
+    async def update_contact(self, domain: str, contact_id: str, date_communication: str, started_dialog: bool = False) -> bool:
+        fields = {
+            'UF_CRM_1687673321747': date_communication,
+        }
+
+        if started_dialog:
+            fields['UF_CRM_1773559525'] = 'Y'
+
         response = await self.client.call(
             domain,
             'crm.contact.update',
             {
                 'id': contact_id,
-                'fields': {
-                    'UF_CRM_1687673321747': date_communication,
-                    'UF_CRM_1773559525': 'Y'
-                }
+                'fields': fields
             }
         )
 

@@ -39,7 +39,8 @@ class MessageAddService:
             result = await self.dialog_client.update_contact(
                 domain=domain,
                 contact_id=dialog.contact_id,
-                date_communication=datetime.datetime.now().strftime('%Y-%m-%d')
+                date_communication=datetime.datetime.now().strftime('%Y-%m-%d'),
+                started_dialog=True
             )
 
         return True if dialog_id else False
